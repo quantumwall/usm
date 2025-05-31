@@ -1,6 +1,5 @@
 package org.quantum.usm.entity;
 
-import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,7 +28,6 @@ public class User {
 	private String username;
 	private String firstname;
 	private String lastname;
-	private LocalDate birthday;
 
 	@OneToMany(mappedBy = "user")
 	private Set<UserSubscription> subscriptions = new HashSet<>();

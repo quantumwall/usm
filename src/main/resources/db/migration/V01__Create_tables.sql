@@ -3,8 +3,7 @@ CREATE TABLE IF NOT EXISTS users
 	id BIGSERIAL PRIMARY KEY,
 	username VARCHAR(255) NOT NULL UNIQUE,
 	firstname VARCHAR(255),
-	lastname VARCHAR(255),
-	birthday DATE
+	lastname VARCHAR(255)
 );
 
 CREATE TABLE IF NOT EXISTS subscriptions
