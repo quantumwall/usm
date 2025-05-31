@@ -1,0 +1,8 @@
+package org.quantum.usm.repository;
+
+import org.quantum.usm.entity.User;
+import org.springframework.data.repository.CrudRepository;
+
+public interface UserRepository extends CrudRepository<User, Long> {
+
+}
