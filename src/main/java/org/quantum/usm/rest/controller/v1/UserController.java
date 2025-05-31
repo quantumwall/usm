@@ -1,9 +1,13 @@
 package org.quantum.usm.rest.controller.v1;
 
 import org.quantum.usm.dto.UserDto;
+import org.quantum.usm.dto.UserSubscriptionDto;
 import org.quantum.usm.entity.User;
+import org.quantum.usm.entity.UserSubscription;
 import org.quantum.usm.mapper.user.UserMapper;
+import org.quantum.usm.mapper.usersubscription.UserSubscriptionMapper;
 import org.quantum.usm.service.user.UserService;
+import org.quantum.usm.service.usersubscription.UserSubscriptionService;
 import org.quantum.usm.validation.OnCreate;
 import org.quantum.usm.validation.OnUpdate;
 import org.springframework.http.HttpStatus;
@@ -26,12 +30,22 @@ import lombok.RequiredArgsConstructor;
 public class UserController {
 
 	private final UserService userService;
+	private final UserSubscriptionService userSubscriptionService;
 	private final UserMapper userMapper;
+	private final UserSubscriptionMapper userSubscriptionMapper;
 
 	@PostMapping
 	public ResponseEntity<?> create(@Validated(OnCreate.class) @RequestBody UserDto userDto) {
 		User user = userService.create(userDto);
 		return ResponseEntity.status(HttpStatus.CREATED).body(userMapper.toDto(user));
+	}
+
+	@PostMapping("/{id}/subscriptions")
+	public ResponseEntity<?> createUserSubscription(
+			@PathVariable Long id,
+			@Validated @RequestBody UserSubscriptionDto userSubscriptionDto) {
+		UserSubscription userSubscription = userSubscriptionService.create(id, userSubscriptionDto);
+		return ResponseEntity.status(HttpStatus.CREATED).body(userSubscriptionMapper.toReadDto(userSubscription));
 	}
 
 	@DeleteMapping("/{id}")
@@ -40,10 +54,21 @@ public class UserController {
 		return ResponseEntity.ok(null);
 	}
 
+	@DeleteMapping("/{userId}/subscriptions/{subscriptionId}")
+	public ResponseEntity<?> deleteUserSubscription(@PathVariable Long userId, @PathVariable Long subscriptionId) {
+		return ResponseEntity.status(HttpStatus.OK).body(null);
+	}
+
 	@GetMapping("/{id}")
 	public ResponseEntity<?> get(@PathVariable Long id) {
 		User user = userService.get(id);
 		return ResponseEntity.status(HttpStatus.OK).body(userMapper.toDto(user));
+	}
+
+	@GetMapping("/{userId}/subscriptions")
+	public ResponseEntity<?> getUserSubscriptions(@PathVariable Long userId) {
+		Iterable<UserSubscription> subscriptions = userSubscriptionService.getUserSubscriptions(userId);
+		return ResponseEntity.status(HttpStatus.OK).body(userSubscriptionMapper.toReadDtos(subscriptions));
 	}
 
 	@PutMapping("/{id}")

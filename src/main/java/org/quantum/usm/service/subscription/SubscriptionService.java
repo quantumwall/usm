@@ -5,4 +5,7 @@ import org.quantum.usm.entity.Subscription;
 public interface SubscriptionService {
 
 	Iterable<Subscription> getAvailableSubscriptions();
+	
+	Subscription getById(Integer id);
+	
 }
