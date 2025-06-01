@@ -10,7 +10,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -22,7 +24,9 @@ public class UserServiceImpl implements UserService {
 	@Override
 	@Transactional
 	public User create(UserDto userDto) {
+		log.info("create user: {}", userDto);
 		if (userRepository.findByUsername(userDto.username()).isPresent()) {
+			log.warn("user {} already exists", userDto.username());
 			throw new EntityAlreadyExistsException("User %s already exists".formatted(userDto.username()));
 		}
 		return userRepository.save(userMapper.toEntity(userDto));
@@ -31,8 +35,12 @@ public class UserServiceImpl implements UserService {
 	@Override
 	@Transactional
 	public User update(Long id, UserDto user) {
+		log.info("update user id: {}", id);
 		User userFromDb = userRepository.findById(id)
-				.orElseThrow(() -> new EntityNotFoundException("User %d not found".formatted(id)));
+				.orElseThrow(() -> {
+					log.warn("user id: {} not found", id);
+					return new EntityNotFoundException("User %d not found".formatted(id));
+				});
 		userFromDb.setFirstname(user.firstname());
 		userFromDb.setLastname(user.lastname());
 		return userFromDb;
@@ -40,14 +48,22 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public User get(Long id) {
+		log.info("get user id: {}", id);
 		return userRepository.findById(id)
-				.orElseThrow(() -> new EntityNotFoundException("User %d not found".formatted(id)));
+				.orElseThrow(() -> {
+					log.warn("user id: {} not found", id);
+					return new EntityNotFoundException("User %d not found".formatted(id));
+				});
 	}
 
 	@Override
 	@Transactional
 	public void delete(Long id) {
-		userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("User %d not found".formatted(id)));
+		log.info("delete user id: {}", id);
+		userRepository.findById(id).orElseThrow(() -> {
+			log.warn("user id: {} not found", id);
+			return new EntityNotFoundException("User %d not found".formatted(id));
+		});
 		userRepository.deleteById(id);
 	}
 

@@ -8,4 +8,6 @@ public interface SubscriptionService {
 	
 	Subscription getById(Integer id);
 	
+	Iterable<Subscription> getTopThreeSubscriptions();
+	
 }

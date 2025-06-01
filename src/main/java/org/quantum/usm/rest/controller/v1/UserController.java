@@ -35,7 +35,7 @@ public class UserController {
 	private final UserSubscriptionMapper userSubscriptionMapper;
 
 	@PostMapping
-	public ResponseEntity<?> create(@Validated(OnCreate.class) @RequestBody UserDto userDto) {
+	public ResponseEntity<?> createUser(@Validated(OnCreate.class) @RequestBody UserDto userDto) {
 		User user = userService.create(userDto);
 		return ResponseEntity.status(HttpStatus.CREATED).body(userMapper.toDto(user));
 	}
@@ -56,6 +56,7 @@ public class UserController {
 
 	@DeleteMapping("/{userId}/subscriptions/{subscriptionId}")
 	public ResponseEntity<?> deleteUserSubscription(@PathVariable Long userId, @PathVariable Long subscriptionId) {
+		userSubscriptionService.delete(userId, subscriptionId);
 		return ResponseEntity.status(HttpStatus.OK).body(null);
 	}
 

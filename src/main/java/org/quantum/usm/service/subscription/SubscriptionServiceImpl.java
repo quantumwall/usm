@@ -25,4 +25,9 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 				.orElseThrow(() -> new EntityNotFoundException("Subscription %d not found".formatted(id)));
 	}
 
+	@Override
+	public Iterable<Subscription> getTopThreeSubscriptions() {
+		return subscriptionRepository.findTopThreeSubscriptions();
+	}
+
 }

@@ -12,4 +12,6 @@ public interface UserSubscriptionRepository extends CrudRepository<UserSubscript
 	Iterable<UserSubscription> findByUserId(Long userId);
 
 	Optional<UserSubscription> findByUserIdAndSubscriptionId(Long userId, Integer subscriptionId);
+
+	Optional<UserSubscription> findByIdAndUserId(Long id, Long userId);
 }

@@ -1,5 +1,8 @@
 package org.quantum.usm.service.usersubscription;
 
+import java.time.LocalDate;
+import java.util.Optional;
+
 import org.quantum.usm.dto.UserSubscriptionDto;
 import org.quantum.usm.entity.Subscription;
 import org.quantum.usm.entity.User;
@@ -13,7 +16,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserSubscriptionServiceImpl implements UserSubscriptionService {
@@ -30,12 +35,14 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
 	@Override
 	@Transactional
 	public UserSubscription create(Long userId, UserSubscriptionDto userSubscriptionDto) {
+		log.info("Create subscription: userId: {}, subscription: {}", userId, userSubscriptionDto);
 		User user = userService.get(userId);
 		Subscription subscription = subscriptionService.getById(userSubscriptionDto.subscriptionId());
-		if (userSubscriptionRepository.findByUserIdAndSubscriptionId(userId, userSubscriptionDto.subscriptionId())
-				.isPresent()) {
-			throw new EntityAlreadyExistsException(
-					"User subscription %d already exists".formatted(userSubscriptionDto.subscriptionId()));
+		Optional<UserSubscription> existedUserSubscription = userSubscriptionRepository
+				.findByUserIdAndSubscriptionId(userId, userSubscriptionDto.subscriptionId());
+		if (existedUserSubscription.isPresent()) {
+			renewSubscriptionIfNeeded(existedUserSubscription.get(), userSubscriptionDto.expirationDate());
+			return existedUserSubscription.get();
 		}
 		UserSubscription userSubscription = new UserSubscription();
 		userSubscription.setUser(user);
@@ -47,12 +54,27 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
 	@Override
 	@Transactional
 	public void delete(Long userId, Long userSubscriptionId) {
+		log.info("Delete subscription: userId: {}, userSubscriptionId: {}", userId, userSubscriptionId);
 		userService.get(userId);
 		userSubscriptionRepository
-				.findById(userSubscriptionId)
-				.orElseThrow(() -> new EntityNotFoundException(
-						"User subscription %d not found".formatted(userSubscriptionId)));
+				.findByIdAndUserId(userSubscriptionId, userId)
+				.orElseThrow(() -> {
+					log.warn("user subscription id: {} not found", userSubscriptionId);
+					return new EntityNotFoundException(
+							"User subscription id:%d not found".formatted(userSubscriptionId));
+				});
 		userSubscriptionRepository.deleteById(userSubscriptionId);
+	}
+
+	private void renewSubscriptionIfNeeded(UserSubscription subscription, LocalDate newDate) {
+		if (subscription.getExpirationDate().isEqual(newDate)) {
+			log.warn("user subscription id: {} already exists", subscription.getId());
+			throw new EntityAlreadyExistsException(
+					"User subscription id:%d already exists".formatted(subscription.getId()));
+		}
+		if (subscription.getExpirationDate().isBefore(newDate)) {
+			subscription.setExpirationDate(newDate);
+		}
 	}
 
 }
