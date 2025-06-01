@@ -24,7 +24,7 @@ public class SubscriptionController {
 		Iterable<Subscription> subscriptions = subscriptionService.getAvailableSubscriptions();
 		return ResponseEntity.status(HttpStatus.OK).body(subscriptionMapper.toDtos(subscriptions));
 	}
-	
+
 	@GetMapping("/top")
 	public ResponseEntity<?> getTopThreeSubscriptions() {
 		Iterable<Subscription> subscriptions = subscriptionService.getTopThreeSubscriptions();

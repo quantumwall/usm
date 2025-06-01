@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
 
-public record UserSubscriptionDto(
+public record CreateUserSubscriptionDto(
 		@NotNull(message = "Subscription id must be not null")
 		Integer subscriptionId,
 		@NotNull(message = "Expiration date must be not null")

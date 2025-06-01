@@ -6,7 +6,7 @@ public interface SubscriptionService {
 
 	Iterable<Subscription> getAvailableSubscriptions();
 	
-	Subscription getById(Integer id);
+	Subscription get(Integer id);
 	
 	Iterable<Subscription> getTopThreeSubscriptions();
 	

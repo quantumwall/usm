@@ -3,23 +3,23 @@ package org.quantum.usm.mapper.usersubscription;
 import java.util.LinkedList;
 
 import org.quantum.usm.dto.ReadUserSubscriptionDto;
-import org.quantum.usm.dto.UserSubscriptionDto;
+import org.quantum.usm.dto.CreateUserSubscriptionDto;
 import org.quantum.usm.entity.UserSubscription;
 import org.quantum.usm.mapper.Mapper;
 import org.springframework.stereotype.Component;
 
 @Component
-public class UserSubscriptionMapper implements Mapper<UserSubscriptionDto, UserSubscription> {
+public class UserSubscriptionMapper implements Mapper<CreateUserSubscriptionDto, UserSubscription> {
 
 	@Override
-	public UserSubscriptionDto toDto(UserSubscription entity) {
-		return new UserSubscriptionDto(
+	public CreateUserSubscriptionDto toDto(UserSubscription entity) {
+		return new CreateUserSubscriptionDto(
 				entity.getSubscription().getId(),
 				entity.getExpirationDate());
 	}
 
 	@Override
-	public UserSubscription toEntity(UserSubscriptionDto dto) {
+	public UserSubscription toEntity(CreateUserSubscriptionDto dto) {
 		throw new UnsupportedOperationException("Method is not implemented");
 	}
 

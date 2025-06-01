@@ -5,14 +5,13 @@ import org.quantum.usm.exception.EntityNotFoundException;
 import org.quantum.usm.repository.SubscriptionRepository;
 import org.springframework.stereotype.Service;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class SubscriptionServiceImpl implements SubscriptionService {
 
 	private final SubscriptionRepository subscriptionRepository;
-
-	public SubscriptionServiceImpl(SubscriptionRepository subscriptionRepository) {
-		this.subscriptionRepository = subscriptionRepository;
-	}
 
 	@Override
 	public Iterable<Subscription> getAvailableSubscriptions() {
@@ -20,7 +19,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 	}
 
 	@Override
-	public Subscription getById(Integer id) {
+	public Subscription get(Integer id) {
 		return subscriptionRepository.findById(id)
 				.orElseThrow(() -> new EntityNotFoundException("Subscription %d not found".formatted(id)));
 	}

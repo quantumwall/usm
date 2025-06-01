@@ -1,15 +1,15 @@
 package org.quantum.usm.rest.controller.v1;
 
+import org.quantum.usm.dto.CreateUserSubscriptionDto;
 import org.quantum.usm.dto.UserDto;
-import org.quantum.usm.dto.UserSubscriptionDto;
 import org.quantum.usm.entity.User;
 import org.quantum.usm.entity.UserSubscription;
+import org.quantum.usm.exception.EntityNotFoundException;
 import org.quantum.usm.mapper.user.UserMapper;
 import org.quantum.usm.mapper.usersubscription.UserSubscriptionMapper;
 import org.quantum.usm.service.user.UserService;
 import org.quantum.usm.service.usersubscription.UserSubscriptionService;
 import org.quantum.usm.validation.OnCreate;
-import org.quantum.usm.validation.OnUpdate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -23,7 +23,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
@@ -43,7 +45,7 @@ public class UserController {
 	@PostMapping("/{id}/subscriptions")
 	public ResponseEntity<?> createUserSubscription(
 			@PathVariable Long id,
-			@Validated @RequestBody UserSubscriptionDto userSubscriptionDto) {
+			@Validated @RequestBody CreateUserSubscriptionDto userSubscriptionDto) {
 		UserSubscription userSubscription = userSubscriptionService.create(id, userSubscriptionDto);
 		return ResponseEntity.status(HttpStatus.CREATED).body(userSubscriptionMapper.toReadDto(userSubscription));
 	}
@@ -56,7 +58,15 @@ public class UserController {
 
 	@DeleteMapping("/{userId}/subscriptions/{subscriptionId}")
 	public ResponseEntity<?> deleteUserSubscription(@PathVariable Long userId, @PathVariable Long subscriptionId) {
-		userSubscriptionService.delete(userId, subscriptionId);
+		User user = userService.get(userId);
+		user.getSubscriptions().stream()
+				.filter(userSubs -> userSubs.getId().equals(subscriptionId))
+				.findAny()
+				.orElseThrow(() -> {
+					log.warn("user subscription id: {} not found", subscriptionId);
+					return new EntityNotFoundException("User subscription %d not found".formatted(subscriptionId));
+				});
+		userSubscriptionService.delete(subscriptionId);
 		return ResponseEntity.status(HttpStatus.OK).body(null);
 	}
 
@@ -68,14 +78,14 @@ public class UserController {
 
 	@GetMapping("/{userId}/subscriptions")
 	public ResponseEntity<?> getUserSubscriptions(@PathVariable Long userId) {
-		Iterable<UserSubscription> subscriptions = userSubscriptionService.getUserSubscriptions(userId);
-		return ResponseEntity.status(HttpStatus.OK).body(userSubscriptionMapper.toReadDtos(subscriptions));
+		User user = userService.get(userId);
+		return ResponseEntity.status(HttpStatus.OK).body(userSubscriptionMapper.toReadDtos(user.getSubscriptions()));
 	}
 
 	@PutMapping("/{id}")
 	public ResponseEntity<?> update(
 			@PathVariable Long id,
-			@Validated(OnUpdate.class) @RequestBody UserDto userDto) {
+			@Validated @RequestBody UserDto userDto) {
 		User updatedUser = userService.update(id, userDto);
 		return ResponseEntity.status(HttpStatus.OK).body(userMapper.toDto(updatedUser));
 	}

@@ -3,7 +3,7 @@ package org.quantum.usm.service.usersubscription;
 import java.time.LocalDate;
 import java.util.Optional;
 
-import org.quantum.usm.dto.UserSubscriptionDto;
+import org.quantum.usm.dto.CreateUserSubscriptionDto;
 import org.quantum.usm.entity.Subscription;
 import org.quantum.usm.entity.User;
 import org.quantum.usm.entity.UserSubscription;
@@ -34,10 +34,10 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
 
 	@Override
 	@Transactional
-	public UserSubscription create(Long userId, UserSubscriptionDto userSubscriptionDto) {
+	public UserSubscription create(Long userId, CreateUserSubscriptionDto userSubscriptionDto) {
 		log.info("Create subscription: userId: {}, subscription: {}", userId, userSubscriptionDto);
 		User user = userService.get(userId);
-		Subscription subscription = subscriptionService.getById(userSubscriptionDto.subscriptionId());
+		Subscription subscription = subscriptionService.get(userSubscriptionDto.subscriptionId());
 		Optional<UserSubscription> existedUserSubscription = userSubscriptionRepository
 				.findByUserIdAndSubscriptionId(userId, userSubscriptionDto.subscriptionId());
 		if (existedUserSubscription.isPresent()) {
@@ -53,11 +53,9 @@ public class UserSubscriptionServiceImpl implements UserSubscriptionService {
 
 	@Override
 	@Transactional
-	public void delete(Long userId, Long userSubscriptionId) {
-		log.info("Delete subscription: userId: {}, userSubscriptionId: {}", userId, userSubscriptionId);
-		userService.get(userId);
+	public void delete(Long userSubscriptionId) {
 		userSubscriptionRepository
-				.findByIdAndUserId(userSubscriptionId, userId)
+				.findById(userSubscriptionId)
 				.orElseThrow(() -> {
 					log.warn("user subscription id: {} not found", userSubscriptionId);
 					return new EntityNotFoundException(
